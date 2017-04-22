@@ -57,36 +57,72 @@ void solve(double *table, int rows, int cols, double *result)
 
     int row, col, i;
 
-    double sums[rows];
-    double sums_mult[cols][cols];
-    memset(sums_mult, 0, sizeof(sums_mult[0][0]) * rows * cols);
+    double a[cols][cols + 1];
+    memset(a, 0, sizeof(a[0][0]) * cols * (cols + 1));
+
+    double b[cols];
 
     for(col = 0; col < cols; col++) {
         for(row = 0; row < rows; row++) {
-            sums[col] += A(row, col);
-
             for(i = 0; i < cols; i++) {
-                sums_mult[col][i] += A(row, col) * A(row, i);
+                if(i == cols - 1) {
+                   b[col] +=   A(row, col); 
+                }
+
+                a[col + 1][i + 1] += A(row, col) * A(row, i);
             }
         }
     }
 
-   double a[] = {
-        rows, sums[0], sums[1], sums[2],
-        sums[0], sums_mult[0][0], sums_mult[0][1], sums_mult[0][2],
-        sums[1], sums_mult[0][1], sums_mult[1][1], sums_mult[1][2],
-        sums[2], sums_mult[0][2], sums_mult[2][1], sums_mult[2][2]
-    };
+    a[0][0] = rows;
+    for(col = 0; col < cols; col++) {
+        a[0][col + 1] = b[col];
+        a[col + 1][0] = b[col];
 
+    }
 
-    double b[] = {
-       sums[3],
-       sums_mult[0][3],
-       sums_mult[1][3],
-       sums_mult[3][2],
-    };
+    double left_term[cols][cols];
+    double right_term[cols];
 
-	gauss(a, b, result, cols);
+    for(col = 0; col < cols; col++) {
+        for(i = 0; i <= cols; i++) {
+
+            if(i == cols) {
+                right_term[col] = a[col][i];
+            } else {
+                left_term[col][i] = a[col][i];
+            }
+        }
+    }
+
+    double *mitko = &left_term[0][0];
+
+	gauss(mitko, right_term, result, cols);
 
 #undef A
 }
+
+/*
+int main()
+{
+
+    double table[6][4] = {
+        { 1142, 1060, 325, 201 },
+        { 863, 995, 98, 98 },
+        { 1065, 3205, 23, 162 },
+        { 554, 120, 0, 54 },
+        { 983, 2896, 120, 138 },
+        { 256, 485, 88, 61 }
+    };
+
+    double result[4];
+    solve(*(table), 6, 4, result);
+
+    int i;
+    for(i = 0; i < 4; i++) {
+        printf("%g\n", result[i]);
+    }
+
+    return 0;
+}
+*/
