@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <math.h>
 #include <string.h>
+#include <assert.h>
  
 #define mat_elem(a, y, x, n) (a + ((y) * (n) + (x)))
  
@@ -21,6 +23,14 @@ void swap_row(double *a, double *b, int r1, int r2, int n)
  
 void gauss(double *a, double *b, double *x, int n)
 {
+/*
+ Usage:     gauss(a,b,x,n)
+		   
+		   a   - Matrix a[n][n]
+		   b   - Right hand side vector b[n]
+		   x   - Desired solution vector
+		   n   - Matrix dimensions
+ */
 #define A(y, x) (*mat_elem(a, y, x, n))
 	int i, j, col, row, max_row,dia;
 	double max, tmp;
@@ -51,61 +61,84 @@ void gauss(double *a, double *b, double *x, int n)
 #undef A
 }
 
+bool is_table_only_zeroes(double *table, int rows, int cols)
+{
+#define table(row, col) (table[(row) * cols + (col)])
+    int row, col;
+    for(row = 0; row < rows; row++) {
+        for(col = 0; col < cols; col++) {
+            if(table(row, col) != 0) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+#undef table
+}
+
 void solve(double *table, int rows, int cols, double *result)
 {
-#define A(row, col) (table[(row) * cols + (col)])
+/*
+ Usage:     solve(table, rows, cols, result)                                                      
++                                                                                 
++            table - Matrix table[n][n]                                                 
++            rows - Table rows count                                   
++            cols - Table cols count                                      
++            result - Desired solution vector                   
 
+*/
+#define table(row, col) (table[(row) * cols + (col)])
     int row, col, i;
 
-    double a[cols][cols + 1];
-    memset(a, 0, sizeof(a[0][0]) * cols * (cols + 1));
+    assert(is_table_only_zeroes(table, rows, cols) == false);
 
-    double b[cols];
+    double matrix[cols][cols + 1];
+    memset(matrix, 0, sizeof(matrix[0][0]) * cols * (cols + 1));
+
+    double vector[cols];
 
     for(col = 0; col < cols; col++) {
         for(row = 0; row < rows; row++) {
             for(i = 0; i < cols; i++) {
                 if(i == cols - 1) {
-                   b[col] +=   A(row, col); 
+                   vector[col] +=   table(row, col); 
                 }
 
-                a[col + 1][i + 1] += A(row, col) * A(row, i);
+                matrix[col + 1][i + 1] += table(row, col) * table(row, i);
             }
         }
     }
 
-    a[0][0] = rows;
+    matrix[0][0] = rows;
     for(col = 0; col < cols; col++) {
-        a[0][col + 1] = b[col];
-        a[col + 1][0] = b[col];
-
+        matrix[0][col + 1] = vector[col];
+        matrix[col + 1][0] = vector[col];
     }
 
-    double left_term[cols][cols];
-    double right_term[cols];
+    double left_hand_matrix[cols][cols];
+    double right_hand_vector[cols];
 
     for(col = 0; col < cols; col++) {
         for(i = 0; i <= cols; i++) {
 
             if(i == cols) {
-                right_term[col] = a[col][i];
+                right_hand_vector[col] = matrix[col][i];
             } else {
-                left_term[col][i] = a[col][i];
+                left_hand_matrix[col][i] = matrix[col][i];
             }
         }
     }
 
-    double *mitko = &left_term[0][0];
+	gauss(&left_hand_matrix[0][0], right_hand_vector, result, cols);
 
-	gauss(mitko, right_term, result, cols);
-
-#undef A
+#undef table
 }
+
 
 /*
 int main()
 {
-
     double table[6][4] = {
         { 1142, 1060, 325, 201 },
         { 863, 995, 98, 98 },
@@ -114,6 +147,8 @@ int main()
         { 983, 2896, 120, 138 },
         { 256, 485, 88, 61 }
     };
+
+
 
     double result[4];
     solve(*(table), 6, 4, result);

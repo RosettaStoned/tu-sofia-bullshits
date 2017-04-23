@@ -38,6 +38,7 @@ void test_first()
 
 void test_sec()
 {
+
     double table[6][4] = {
         { 1142, 1060, 325, 201 },
         { 863, 995, 98, 98 },
@@ -64,9 +65,27 @@ void test_sec()
     }
 }
 
+void test_zeroes()
+{
+    double table[6][4] = {
+        { 0, 0, 0, 0 },
+        { 0, 0, 0, 0 },
+        { 0, 0, 0, 0 },
+        { 0, 0, 0, 0 },
+        { 0, 0, 0, 0 },
+        { 0, 0, 0, 0 }
+    };
+
+    double result[4];
+    solve(*(table), 6, 4, result);
+    
+    CU_ASSERT(0);
+}
+
 CU_TestInfo testcases[] = {
     {"Testing with first table: ", test_first},
     {"Testing with second table: ", test_sec},
+    {"Testing with only zeroes table: ", test_zeroes},
     CU_TEST_INFO_NULL
 };
 /**//*---- test suites ------------------*/
@@ -75,7 +94,6 @@ int suite_success_clean(void) { return 0; }
 
 CU_SuiteInfo suites[] = {
     {"Testing the function gauss():", suite_success_init, suite_success_clean, NULL, NULL, testcases},
-    {"Testing the function gauss() again:",suite_success_init, suite_success_clean, NULL, NULL, testcases},
     CU_SUITE_INFO_NULL
 };
 
