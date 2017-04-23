@@ -9,6 +9,9 @@
  
 void swap_row(double *a, double *b, int r1, int r2, int n)
 {
+    assert(a != NULL);
+    assert(b != NULL);
+
 	double tmp, *p1, *p2;
 	int i;
  
@@ -32,6 +35,12 @@ void gauss(double *a, double *b, double *x, int n)
 		   n   - Matrix dimensions
  */
 #define A(y, x) (*mat_elem(a, y, x, n))
+
+    assert(a != NULL);
+    assert(b != NULL);
+    assert(x != NULL);
+    assert(x > 0);
+
 	int i, j, col, row, max_row,dia;
 	double max, tmp;
  
@@ -64,6 +73,10 @@ void gauss(double *a, double *b, double *x, int n)
 bool is_table_only_zeroes(double *table, int rows, int cols)
 {
 #define table(row, col) (table[(row) * cols + (col)])
+    assert(table != NULL);
+    assert(rows > 0);
+    assert(cols > 0);
+ 
     int row, col;
     for(row = 0; row < rows; row++) {
         for(col = 0; col < cols; col++) {
@@ -89,6 +102,11 @@ void solve(double *table, int rows, int cols, double *result)
 
 */
 #define table(row, col) (table[(row) * cols + (col)])
+    assert(table != NULL);
+    assert(rows > 0);
+    assert(cols > 0);
+    assert(result != NULL);
+
     int row, col, i;
 
     assert(is_table_only_zeroes(table, rows, cols) == false);
@@ -103,9 +121,13 @@ void solve(double *table, int rows, int cols, double *result)
             for(i = 0; i < cols; i++) {
                 if(i == cols - 1) {
                    vector[col] +=   table(row, col); 
+
+                   assert(!isnan(vector[col]));
                 }
 
                 matrix[col + 1][i + 1] += table(row, col) * table(row, i);
+
+                assert(!isnan(matrix[col + 1][i + 1]));
             }
         }
     }
@@ -136,7 +158,6 @@ void solve(double *table, int rows, int cols, double *result)
 }
 
 
-/*
 int main()
 {
     double table[6][4] = {
@@ -148,8 +169,6 @@ int main()
         { 256, 485, 88, 61 }
     };
 
-
-
     double result[4];
     solve(*(table), 6, 4, result);
 
@@ -160,4 +179,3 @@ int main()
 
     return 0;
 }
-*/
